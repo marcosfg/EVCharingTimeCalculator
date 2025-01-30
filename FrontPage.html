@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EV Charging Time Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+        }
+        select, input, button {
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 16px;
+            width: 100%;
+        }
+        button {
+            background-color: #004080;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #003366;
+        }
+        .output {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>EV Charging Time Calculator</h2>
+        <label for="brand">Brand:</label>
+        <select id="brand" onchange="updateModels()">
+            <option value="">Select a brand</option>
+        </select>
+        <label for="model">Model:</label>
+        <select id="model"></select>
+        <label for="dailyKm">Daily Kilometers:</label>
+        <input type="number" id="dailyKm" placeholder="Enter daily km">
+        <button onclick="calculateChargingTime()">Calculate</button>
+        <div class="output" id="output">
+            <p><strong>Battery:</strong> </p>
+            <p><strong>Charging Speed:</strong> </p>
+            <p><strong>Charging Time:</strong> </p>
+        </div>
+    </div>
+
+    <script>
+        const evs = {
+            Tesla: [
+                { model: "Model S", battery: 100, chargingSpeed: 11 },
+                { model: "Model 3", battery: 75, chargingSpeed: 7.7 }
+            ],
+            Nissan: [
+                { model: "Leaf", battery: 40, chargingSpeed: 6.6 },
+                { model: "Ariya", battery: 87, chargingSpeed: 7.2 }
+            ],
+            BMW: [
+                { model: "i3", battery: 42.2, chargingSpeed: 7.4 },
+                { model: "iX", battery: 111.5, chargingSpeed: 11 }
+            ]
+        };
+
+        function populateBrands() {
+            const brandSelect = document.getElementById("brand");
+            for (const brand in evs) {
+                const option = document.createElement("option");
+                option.value = brand;
+                option.textContent = brand;
+                brandSelect.appendChild(option);
+            }
+        }
+
+        function updateModels() {
+            const modelSelect = document.getElementById("model");
+            const brand = document.getElementById("brand").value;
+
+            modelSelect.innerHTML = '<option value="">Select a model</option>';
+            if (brand) {
+                evs[brand].forEach(ev => {
+                    const option = document.createElement("option");
+                    option.value = ev.model;
+                    option.textContent = ev.model;
+                    modelSelect.appendChild(option);
+                });
+            }
+        }
+
+        function calculateChargingTime() {
+            const brand = document.getElementById("brand").value;
+            const model = document.getElementById("model").value;
+            const dailyKm = document.getElementById("dailyKm").value;
+            const output = document.getElementById("output");
+
+            if (!brand || !model || !dailyKm) {
+                alert("Please select a brand, model, and enter daily kilometers.");
+                return;
+            }
+
+            const ev = evs[brand].find(ev => ev.model === model);
+            const requiredBattery = (dailyKm / 100) * ev.battery;
+            const chargingTime = (requiredBattery / ev.chargingSpeed).toFixed(2);
+
+            output.innerHTML = `
+                <p><strong>Battery:</strong> ${ev.battery} kWh</p>
+                <p><strong>Charging Speed:</strong> ${ev.chargingSpeed} kW</p>
+                <p><strong>Charging Time:</strong> ${chargingTime} hours</p>
+            `;
+        }
+
+        window.onload = populateBrands;
+    </script>
+</body>
+</html>
